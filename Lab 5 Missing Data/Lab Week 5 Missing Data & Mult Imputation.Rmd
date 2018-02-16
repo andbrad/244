@@ -1,0 +1,98 @@
+---
+title: "Lab Week 5 Missing Data & Mult Imputation"
+author: "Brad Anderson"
+date: "February 15, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages}
+
+library(tidyverse)
+library(VIM) #package for exploring and visualizing missing data
+library(mice)
+
+```
+
+```{r data}
+
+df <- read_csv("~/github/244/Lab 5 Missing Data/data/df_missings.csv")
+
+```
+
+##Step 3. 
+
+a. Identify complete cases and missing cases
+
+```{r}
+
+cc <- df[complete.cases(df),] #complete cases with no missing observations
+missings <- df[!complete.cases(df),]
+```
+
+b. Visually identify the structure of the missingness.
+
+```{r}
+
+aggr(df, prop = F, numbers = T) #prop = T will use proportions instead of numbers.
+
+```
+Nice bar graph of the numbers of missings. The combination graph tells how often combinations of missingness exist. Blue indicate not missing. It shows that there are 3 cases where the only variable missing is age. 1 case where weight and smoker is missing.
+
+c. Another way...matrixplot
+
+```{r}
+
+#windows() #opening matrixplot() in a window allows you to interactively sort by the different variables.
+#NOTE! You need to comment out window() if you are going to knit
+
+matrixplot(df[1:3]) #only using the first three columns
+```
+Red values indicate missingness. COlor of gray boxes indicate some value. White indicates a very low value, with darker gray being a higher value.
+
+If this is all you have done to explore missingness, than you ahve done more than 99% of people. But there are further methods...
+
+Mult. Imputation: take original dataset with missings, create new dataset that fills the missing observations with predicted values that are calculated multiple times....or something.
+
+##Step 5. 
+Multiple Imputation using the mice package and functions, and explore the complete cases
+
+```{r}
+#reassign as factors
+
+df$sex <- as.factor(df$sex)
+df$smoker <- as.factor(df$smoker)
+
+imputed <- mice(df, m = 5) #mice = multiple imputation for change equations, default m is 5
+#summary(imputed)
+
+imputed$imp$age
+
+complete(imputed, action = 4)
+
+```
+Summary tells you the different types of models that were used to predict values the the complete cases are based on. pmm = predicted means match. Sex does not have a model because there are no missing values. Smoker used logistic regression.
+
+##Step 6. 
+Perform regression on each of the complete cases separately using the with() function, and then pool the results using the pool() function
+
+```{r}
+
+lmcc <- with(imputed, lm(sbp ~ weight))
+lmcc
+
+#We see 5 different model results. They will be different each time. This randomness helps us explore uncertainty. It shows you the intercept and the coefficient.
+ 
+impute_pooled <- pool(lmcc)
+impute_pooled
+
+#The VIM package has the pool() function which allows you to get back to one model that includes this uncertainty that we just created.
+```
+```{r}
+
+summary(impute_pooled) #Gives us a bunch of info. 
+```
+
