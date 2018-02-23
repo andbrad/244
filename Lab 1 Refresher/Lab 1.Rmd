@@ -1,0 +1,62 @@
+---
+title: "Lab 1"
+author: "Brad Anderson"
+date: "January 18, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r data and packages}
+
+library(tidyverse)
+
+hp_aggression <- read_csv("H:/Week 1/hp_aggression.csv")
+
+```
+
+##Step 3. Data Wrangling and the Pipe Operator
+
+-select(): select specified columns from a df
+-filter(): sekect riws by setting conditions to match
+-mutate(): adds columns based on calculations for existing
+-arrange(): sorting variables
+-group_by(): assign groupings to variable entries, and can perform operations by group
+-distinct(): will only retain distinct observations
+-head(): select any number of top observations
+
+```{r data_wrangling}
+
+hp_df1 <- hp_aggression %>% 
+  select(Name, aggressions, mentions) %>% 
+  mutate(rate = aggressions/mentions) %>% 
+  group_by(Name) %>% 
+  mutate(average_rate = mean(rate)) %>%  #It will caluclate mean rate based on the groups.
+  ungroup() %>% 
+  select(Name, average_rate) %>% 
+  distinct(Name, average_rate) %>% 
+  arrange(-average_rate) %>% 
+  head(10)
+```
+
+##Step 4. ggplot refresher
+
+1. Tell R that you want to use ggplots
+2. Tell it what data you want to use (what your x and y are)
+3. tell it what type of graphic you want to create
+
+```{r set_levels}
+
+hp_df1$Name <- factor(hp_df1$Name, levels = hp_df1$Name[order(hp_df1$average_rate)]) #This allows you to create ordered levels
+
+```
+
+```{r graph}
+
+ggplot(data = hp_df1, aes(x = Name, y = average_rate))+
+  geom_bar(stat = "identity", aes(fill = Name)) + #Quotations are usually used when describing characteristics 
+  coord_flip()
+```
+

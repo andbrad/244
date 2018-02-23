@@ -1,0 +1,108 @@
+---
+title: "244 Assignment 1"
+author: "Brad Anderson"
+date: "February 2, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+###Task 3: Blues Styles
+```{r}
+library(tidyverse)
+library(nnet)
+
+BluesStyle <- read_csv("H:/244/Assignment 1/BluesStyle.csv")
+```
+
+```{r}
+BluesStyle$Region<-as.factor(BluesStyle$Region)
+BluesStyle$Style<-as.factor(BluesStyle$Style)
+
+```
+
+```{r}
+BluesMLR <-multinom(Style ~ Region + BirthYear, data=BluesStyle)
+exp(coef(BluesMLR))
+```
+
+```{r}
+
+BluesFrame<-data.frame(Region=rep(c("Texas","Delta","East"), 
+                              each= 67),
+                  BirthYear=rep(seq(1874,1940),3))
+```
+
+```{r}
+
+Predprob<-data.frame(BluesFrame, predict(BluesMLR,newdata=BluesFrame, type="probs"))
+
+```
+
+```{r}
+
+prob_gather <-Predprob %>% 
+  gather(ThumbStyle, Probability, Alternating:Utility)
+
+```
+
+```{r}
+
+ggplot(prob_gather, aes(x=BirthYear, y=Probability))+
+  geom_line(aes(color=ThumbStyle), size=1)+
+  facet_wrap(~Region)+
+  ggtitle("The Thumb Styles of Blues Guitarists")+
+  xlab("Birth Year") +
+  ylab("Probability of Using Thumb Style") +
+  theme_linedraw()+
+  theme(plot.title = element_text(hjust = 0.5))+
+  theme(panel.grid.major = element_line(colour = "gray"))+
+  theme(panel.grid.minor = element_line(colour = "gray"))+
+  guides(color=guide_legend(title="Thumb Picking Style")) +
+  ggsave("blues.jpg", width = 6, height = 4, units = c("in"), dpi=300)
+
+```
+
+The	relative	risk	(or	odds)	of	using a Dead thumb style	as	you	switch	
+from	the Delta	to	Texas	is	multiplied	by	3.89	(there	is	a	
+GREATER	PROBABILITY	of	using	the Dead Thumb Style	if	they are from Texas	versus	
+the Delta)
+
+If	birth year	increases	by	1,	the	relative	risk	of	using a Dead thumb style	
+versus	attending	using the alternating or utility styles	are	both reduced, meaning as time went on the dead thumb style became less popular in every region.
+
+###Task 4: Mexican Food
+
+```{r}
+
+agaves_v<-rep(1:5, c(30,22,30,109,326))
+lilly_v<-rep(1:5, c(6,13,19,83,199))
+
+
+#both_data<-data.frame(agaves_vector, lilly_vector)
+#colnames(both_data)<-c("Los_Agaves", "Lillys")
+
+#agaves_v<-as.numeric(agaves_v)
+#lilly_v<-as.numeric(lilly_v)
+
+```
+
+```{r}
+
+f_test <- var.test(agaves_v, lilly_v)
+
+f_test
+
+```
+
+```{r}
+
+tacos_mwu <- wilcox.test(agaves_v, lilly_v)
+tacos_mwu
+
+```
+
+There is not a significant difference in median rankings for Lilys Tacos (n=???) and Los Agaves (n = ???), w(65) = 0.49, apha = 0.05.

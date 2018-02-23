@@ -1,0 +1,96 @@
+finish ,last_name,first_name,bib,race_id,sex,age,city,state,country
+y,Iino,Wataru,65,3254,m,37,Chennai,,IND
+y,Bonfiglio,Marco,97,3263,m,39,Abbiategrasso,,ITA
+y,Lewis III,Harvey,35,1903,m,41,Cincinnati,Ohioæ,USA
+y,Stuwe,Uli,31,3045,m,43,Ventura,Californiaæ,USA
+y,Kostelnick,Pete,1,2622,m,29,Hannibal,Missouriæ,USA
+y,Maughan,Grant,9,2351,m,53,Dudley,,AUS
+y,Kiso,Tetsuo,42,3248,m,49,Moriya,,JPN
+y,Sanchez,Ray,41,716,m,50,Sacramento,Californiaæ,USA
+y,Matyazic,Mark,56,1906,m,52,Irvine,Californiaæ,USA
+y,LaBoffe,Nick,20,3265,m,36,Cincinnati,Ohioæ,USA
+y,Gunderson,Jonathan,24,24,m,39,San Francisco,Californiaæ,USA
+y,Reily,Matthew,74,2945,m,42,Oklahoma City,Oklahomaæ,USA
+y,Martinez,Camilo,94,2730,m,36,New York,New Yorkæ,USA
+y,Fetterolf,Jared,12,2620,m,28,Dallas,Texasæ,USA
+y,Branco,Ariovaldo,45,1170,m,48,Praia Grande,,BRA
+y,Nishimura,HIroyuki,43,2084,m,47,Kamagaya,,JPN
+y,Livesey,Joel,19,3055,m,39,Los Angeles,Californiaæ,USA
+y,Villines,Sandra,52,2835,f,44,San Jose,Californiaæ,USA
+y,Fahrenkamp,Kyle,67,2927,m,40,Cincinnati,Ohioæ,USA
+y,Jones,David,11,35,m,65,Murfreesboro,Tennesseeæ,USA
+y,Westergaard,Danny,84,84,m,58,Palos Verdes Estates,Californiaæ,USA
+y,Costa,Amy,25,2327,f,52,Jacksonville,Floridaæ,USA
+y,Chapman-Markle,Pamela,10,2922,f,61,SanLeon,Texasæ,USA
+y,Holmes,Joshua,36,2592,m,39,Los Angeles,Californiaæ,USA
+y,Reinbolt,Russ,98,2359,m,52,La Jolla,Californiaæ,USA
+y,Bengolea,Hector,53,3250,m,53,Florida,,ARG
+y,Iwamoto,Nobumi,44,1764,m,51,Okinawa,,JPN
+y,Lubics,Szilvia,6,3243,f,43,Nagykanizsa,,HUN
+y,Valladares,Nelva,32,3050,f,32,Los Angeles,Californiaæ,USA
+y,Sanchez,Juan,83,1917,m,48,Saint Helena,Californiaæ,USA
+y,McHugh,Dan,37,3266,m,46,Key Largo,Floridaæ,USA
+y,Kanuga,Kerri,8,2935,f,47,Grand Cayman,,CYM
+y,Soriano,Franco,89,3261,m,46,Livermore,Californiaæ,USA
+y,Gueorguiev,Krasimir Nicolaev,34,3246,m,43,Wilson,Wyomingæ,USA
+y,Ettinghausen,Ed,16,1894,m,54,Wildomar,Californiaæ,USA
+y,Tabios,Gerald,81,2567,m,47,Elmhurst,New Yorkæ,USA
+y,Santos,Kleber,87,3260,m,37,Caxambu,,BRA
+y,Dessy,Luigi,55,2619,m,39,Ponce,Puerto Ricoæ,USA
+y,LeDoyen,Jason,75,3256,m,46,Cary,North Carolinaæ,USA
+y,Kooiman,Andrea,47,2611,f,42,Mission Viejo,Californiaæ,USA
+y,Testolin Rodrigues,Eloiza,5,3242,f,38,"Caxias do Sul, RS,",,BRA
+y,West,Michelle,22,2589,f,45,Santa Monica,Californiaæ,USA
+y,Smith,Neil,46,3249,m,46,Dallas,Texasæ,USA
+y,Robert,Tim,86,3259,m,52,Honolulu,Hawaiiæ,USA
+y,Vieler,Jens,92,1924,m,50,Solothurn,,CHE
+y,Bethke,Ricarda,18,2718,f,53,Solothurn,,CHE
+y,Trout,Jim,58,1291,m,47,East Grand Rapids,Michiganæ,USA
+y,Manzanares Ramirez,Francisco Simon,72,2629,m,47,Chihuahua,,MEX
+y,Zhou,Marcia,3,3240,f,28,Hong Kong,,HKG
+y,Lewis,Ken,39,3044,m,54,Los Angeles,Californiaæ,USA
+y,Gili Farina,Roberto Mario,61,3252,m,44,Cordoba,,ARG
+y,Pinto Oliveira,Augusto,85,3258,m,44,Paredes,,PRT
+y,Delk,Kayla,29,2791,f,30,Greeneville,Tennesseeæ,USA
+y,Delk,Kevin,30,2792,m,34,Greeneville,Tennesseeæ,USA
+y,Lombardi,Bradford,91,2079,m,48,Death Valley,Californiaæ,USA
+y,Spencer,Eric,38,2563,m,38,Coconut Grove,Floridaæ,USA
+y,Olson,Mark K.,63,1195,m,70,Covina,Californiaæ,USA
+y,DeWall,Nathan,73,3146,m,37,Lexington,Kentuckyæ,USA
+y,Al Swaiti,Mohammad,100,2716,m,46,Amman,,JOR
+y,Lindsey,Ashley,17,3068,f,35,Capitola,Californiaæ,USA
+y,Breslin,Chavet,4,3241,f,35,Denver,Coloradoæ,USA
+y,Jacques,Monique,96,3066,f,30,Sanger,Californiaæ,USA
+y,Connor,Adam,54,3251,m,50,Artarmon,,AUS
+y,Corbett,Catra,33,1892,f,52,Fremont,Californiaæ,USA
+y,Smith-Batchen,Lisa,7,73,f,56,Jackson,Wyomingæ,USA
+y,Tjersland,Brian,95,3262,m,50,Dartmouth,Massachusettsæ,USA
+y,Kent,Karla,49,2076,f,54,Las Vegas,Nevadaæ,USA
+y,Weiss,Jodi,71,2570,f,47,Highland Beach,Floridaæ,USA
+y,Payne,Michelle,70,3042,f,48,Southend on Sea,,GBR
+y,Prather,Antonette,88,2735,f,48,Garner,North Carolinaæ,USA
+y,Costa,Siria,40,3247,f,40,Quatro Barras,,BRA
+y,Zato,Colleen,26,3245,f,36,Henderson,Nevadaæ,USA
+y,Berggren,Marcus,14,2717,m,42,Ljusdal,,SWE
+y,Craveri,Juan,82,1827,m,48,Buenos Aires,,ARG
+y,Farar-Griefer,Shannon,15,463,f,56,Calabasas,Californiaæ,USA
+DNF,Coats,David,57,2060,m,56,Houston,Texasæ,USA
+DNF,Ehasz,James,90,1893,m,64,Hereford,Arizonaæ,USA
+DNF,Hameau,Patrick,64,3253,m,45,Paris,,FRA
+DNF,Humphrey,Jack,68,30,m,60,Arvada,Coloradoæ,USA
+DNF,Kaminski,Nick,66,2854,m,44,Burleson,Texasæ,USA
+DNF,Sherak,Lisa,62,3019,f,55,Lawrenceville,Georgiaæ,USA
+DNF,Ulrich,Marshall,21,78,m,66,Evergreen,Coloradoæ,USA
+DNF,Zwarkowski,Cheryl,50,707,f,59,Victorville,Californiaæ,USA
+DNF,Cougot,Dale,13,2593,m,51,Garland,Texasæ,USA
+DNF,Gleason,Jeff,59,1183,m,59,Wexford,Pennsylvaniaæ,USA
+DNF,Hineline,Carl,80,2855,m,42,Plano,Texasæ,USA
+DNF,Marasco,Kevin,78,3257,m,42,Jacksonville Beach,Floridaæ,USA
+DNF,Mazzi,Marco,93,2081,m,50,Valeggio sul Mincio,,ITA
+DNF,Straw,Keith,60,1200,m,62,Malvern,Pennsylvaniaæ,USA
+DNF,Toigo,Gilberto,69,3255,m,55,Porto Alegre,,BRA
+DNF,Guajardo,Brenda,76,1888,f,40,Austin,Texasæ,USA
+DNF,Jimenez,Michael,28,2599,m,43,Marina,Californiaæ,USA
+DNF,Lopez,Oswaldo,2,1189,m,45,Madera,Californiaæ,USA
+DNF,Sanchez,Federico,79,2639,m,47,Saint Helena,Californiaæ,USA
+DNF,Taylor,Noelani,99,3028,f,37,Ponte Vedra Beach,Floridaæ,USA

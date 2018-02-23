@@ -1,0 +1,47 @@
+---
+title: "Fire Map Markdown"
+author: "Brad Anderson"
+date: "February 1, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load the spatial data
+```{r}
+library(tidyverse)
+library(sf)
+library(tmap)
+
+
+sb_fm <- st_read(dsn = ".", layer = "fhszs06_3_42")
+sb_proj <- st_transform(sb_fm, "+init=epsg:4326")
+```
+
+Make a really simple plot
+
+```{r}
+plot(sb_proj['HAZ_CLASS'])
+```
+
+simplify dataset
+
+```{r}
+
+sb_hc <- sb_proj %>% 
+  select(HAZ_CLASS)
+```
+
+Make a map!
+
+```{r}
+
+tm_shape(sb_hc) + 
+  tm_polygons("HAZ_CLASS", title = "SB Fire Hazard Severity")
+
+tmap_mode("view")
+last_map()
+```
+

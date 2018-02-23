@@ -1,0 +1,59 @@
+---
+title: "Margaux Tacos"
+author: "Brad Anderson"
+date: "February 4, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+##creating vectors
+losagaves<-rep(1:5, c(30,22,30,109,326))
+lillystacos<-rep(1:5, c(6,13,19,83,199))
+#losagaves
+#lillystacos
+##medians
+median(losagaves)
+median(lillystacos)
+
+
+
+```
+
+```{r}
+##Test without creating vector with all observations and excluding the ranking values
+rest_test1<-wilcox.test(losagaves, lillystacos)
+rest_test1
+
+
+```
+
+```{r}
+## Merging ranking data results for losagaves and lillystacos into one df 
+rankings<-c(losagaves, lillystacos)
+#rankings
+length(losagaves)
+length(lillystacos)
+
+
+```
+
+```{r}
+restaurants<-c(rep("losagaves", length(losagaves)), rep("lillystacos", length(lillystacos)))
+#restaurants
+
+tacosrest_df<- data.frame(restaurants, rankings)
+#View(tacosrest_df)
+
+#Wilcoxen ranked test
+tacos_test<-wilcox.test(tacosrest_df$rankings[1:517], tacosrest_df$rankings[518:837], data=tacosrest_df)
+tacos_test
+```
+

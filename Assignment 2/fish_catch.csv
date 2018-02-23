@@ -1,8 +1,4 @@
-"World Wild Fish Catch and Farmed Fish Production, 1950-2012",,,
-,,,
-Year,Wild Catch,Farmed Fish,Total Fish Production
-,(Million Tons),,
-,,,
+Year,Wild,Farmed,Total
 1950,17.2,0.5,17.7
 1951,19.2,0.7,19.9
 1952,21.1,0.8,21.9
@@ -66,7 +62,3 @@ Year,Wild Catch,Farmed Fish,Total Fish Production
 2010,88.5,59.9,148.4
 2011,91.8,63.6,155.4
 2012,90.1,67.3,157.4
-,,,
-"Notes: Fish data include fishes, crustaceans, mollusks, and various other aquatic animals. Crocodiles, alligators, and aquatic mammals are excluded. Figures for 2011 are estimates; figures for 2012 are projections.",,,
-,,,
-"Source: Compiled by Earth Policy Institute with 1950-2010 from U.N. Food and Agriculture Organization (FAO), Global Capture Production and Global Aquaculture Production, electronic databases, at www.fao.org/fishery/topic/16140/en, updated March 2012; estimates for 2011 and projections for 2012 from FAO, Food Outlook (Rome: November 2012), p. 10.",,,

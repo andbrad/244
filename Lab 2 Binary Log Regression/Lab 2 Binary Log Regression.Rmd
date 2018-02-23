@@ -1,0 +1,172 @@
+---
+title: "Lab 2 - Binary Logistic Regression"
+author: "Brad Anderson"
+date: "January 27, 2018"
+output: html_document
+---
+
+message=hide! use it!
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages data, include=FALSE}
+
+library(nnet)
+library(leaflet)
+library(tidyverse)
+
+badwater_13 <- read_csv("H:/Week 2/badwater_13.csv")
+
+purchase <- read_csv("H:/Week 2/purchase.csv")
+
+```
+
+a. Get our Badwater Ultramarathon 2013 data 
+
+b. Reassigning 'finish and 'sex' as factors 
+```{r make_factors}
+
+badwater_13$finish<-as.factor(badwater_13$finish)
+badwater_13$sex<-as.factor(badwater_13$sex)
+
+#contrasts(badwater_13$sex) Shows how R assigns numbers to the factors
+  #m
+#f 0
+#m 1
+
+```
+
+```{r badwater model}
+
+bw_model<-glm(finish~sex+age, data=badwater_13, family = "binomial")
+summary(bw_model)
+# glm is a generalized linear model. it shows a linear relationship between the left had side and right hand side, but what is on the right hand side could be nonlinear (e.g. log odds on left side).
+
+
+```
+
+Probability of finishing goes down for males compared to females.
+Probability of finishing decreases as age goes up.
+If you wnat to find the odds, exponentiate the estimated log odds.
+
+e. Make predictions for the model in terms of actual probabilities
+
+Make some data that I will use to make predictions with. 
+make range of age. 
+one dataframe female 25-75 
+second dataframe male 25-75
+will take vectors and combine
+
+```{r make predictions}
+
+age_vector<- rep(seq(from=25, to =75), 2)
+sex_vector<- c(rep("m",51), rep("f", 51))
+
+new_data<-data.frame(age_vector, sex_vector)
+View(new_data) # keep in mind: 
+colnames(new_data)<-c("age", "sex")
+```
+
+Make somepreductions using the predict function
+
+```{r}
+
+prediction <-predict(bw_model, newdata = new_data, type="response", se.fit = TRUE)
+# predict function: choose what you want the calculation to be. if you use type=link, it will give original format on the right hand side of equation (log odds), if you use type=response, turns right hand side of equation into probs. 
+#type=link: log odds; type=response --> the actual probabilities
+#se.fit=TRUE adds estimate of standard error data
+
+graph_data<-data.frame(new_data, prediction$fit, prediction$se.fit)
+View(graph_data)
+colnames(graph_data)<-c("age", "sex", "probability", "se")
+
+```
+
+```{r}
+# ggplot:needs to know data, what is x and y, and how the graph will look like
+
+ggplot(data=graph_data, aes(x=age,y=probability))+
+  geom_line(aes(color=sex))+
+  geom_ribbon(aes(ymin=probability-se,  #Press enter after a comma to make a stacked code structure.
+                  ymax=probability+se, 
+                  fill=sex),alpha=0.3)+
+  theme_classic()
+```
+
+##2. Multinomial Logistic Regression
+
+a. update to factors 
+
+
+```{r factors}
+
+purchase$Buy<-as.factor(purchase$Buy)
+purchase$EdLevel<-as.factor(purchase$EdLevel)
+#look at levels and relevel
+purchase$EdLevel<-relevel(purchase$EdLevel, ref="HS") #this resets the reference level, which reorders the way that r see these factors
+```
+
+b. Multinomial logistic regression 
+
+```{r multinom}
+
+PurchaseMLR <-multinom(Buy~EdLevel+Income, data=purchase) #How education level and incone influnce Buy. aka Buy as a function of edlevel and income. 
+#Because this is multinom() and not glm () we do not need to tell it what kind of regression to run.
+
+
+```
+
+```{r}
+
+Frame<-data.frame(EdLevel=rep(c("HS","College","Graduate"), 
+                              each= 121),
+                  Income=rep(seq(0,120),3))
+View(Frame)
+# NOTE: dont name the dataframe "frame" with lowercase f. View(frame) will not open a dataframe it will open a frame...whatever that is. 
+#has to match levels of model
+
+```
+
+d.Make preductions using model 
+
+```{r predict}
+
+Predprob<-data.frame(Frame, predict(PurchaseMLR,newdata=Frame, type="probs"))
+
+```
+
+e.gather() function (like 'melt')
+
+```{r gather}
+
+prob_gather <-Predprob %>% 
+  gather(Choice, Probability, Generic:Organic)
+
+```
+
+Graph it!
+
+```{r}
+
+ggplot(prob_gather, aes(x=Income, y=Probability))+
+  geom_line(aes(color=Choice))+
+  facet_wrap(~EdLevel) #facetwrap: breaks up into different graphs
+
+```
+
+##3. Intro to leaflet
+
+Gets open access data like Openmaps
+
+```{r}
+
+my_map<-leaflet() %>% 
+  addTiles() %>% 
+  addMarkers(lng=-119.6982, lat=34.4208, popup="Zooming maps")    # tells R you want to open a map
+
+my_map
+
+
+```

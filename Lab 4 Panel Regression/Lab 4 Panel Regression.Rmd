@@ -1,0 +1,128 @@
+---
+title: "Lab 4 Panel Regression"
+author: "Brad Anderson"
+date: "February 8, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages}
+
+library(tidyverse)
+library(Ecdat)
+library(plm)
+library(car)
+library(lmtest)
+
+```
+
+Question: What is the effect of average price of cigarettes on purchases?
+
+2. Simplify the dataset to only retain the variables state, year, packpc, and avgprs.
+
+```{r}
+
+cigs_panel <- Cigarette %>% 
+  select(state, year, packpc, avgprs)
+```
+
+3. Fixed effects model (within state)
+
+```{r}
+
+cigs_model <- plm(packpc ~ avgprs, 
+                  data = cigs_panel,
+                  index = c("state", "year"),
+                  model = "within")
+
+cigs_model
+#summary(cigs_model) ....but we want to use the robust standard error in case of heteroscedasticity
+
+coeftest(cigs_model, vcov = vcovHC(cigs_model, type = "HC1")) #Robust Standard error, Standard error is large, thus a more conservatice approach.
+```
+
+Negative relationship between avg price and packs sold per capita. 
+
+Avg price does not significantly predict packs sold of cigarettes.
+
+Null hypothesis (mathematicall) is  the coefficient of average price is 0, which means there is no dependence between the two.
+
+
+4. Create a Fixed EFfects model for time and entity.
+
+```{r}
+
+et_cigs_model <- plm(packpc ~ avgprs,
+                     data = cigs_panel,
+                     index = c("state", "year"),
+                     model = "within",
+                     effect = "twoways") #Instead of just entity fixed effects, we are also inluding the time fixed effect.
+
+et_cigs_model
+
+coeftest(et_cigs_model, vcov =vcovHC(et_cigs_model, type = "HC1")) #vcov is similar to loking at the R squared values of residuals
+```
+
+Tells us the same thing, as price increases packs sold goes down.
+
+5. So which of these should I pick? Entity fixed effects or entity/time fixed effects (FE)?
+
+If you only looked at time FE, you would be saying that nothing else changes. This is not realistic in real life. One example could be a VERY controlled lab study. BUt one of the pros of panel data is that you get to look into the ffect of other entities.
+
+```{r}
+
+pFtest(et_cigs_model, cigs_model)
+
+
+```
+
+This tells us that we should retain the time FE.
+
+6. Least scquares Dummy variable regression (for the states with the top 5 pops in 1995)
+
+This is essentially doing the smae thing as the plm(), but instead creates dummy variables.
+
+```{r}
+cigs_panel2 <- Cigarette %>%
+  select(state, year, packpc, avgprs) %>% 
+  filter(state == "CA" | state == "TX" | state == "NY" | state == "FL" | state == "PA")
+
+```
+
+Least Squares Dummy Variable regression (state FE)
+
+```{r}
+
+lsdv_cigs <- lm(packpc ~ avgprs + state, data = cigs_panel2)
+#lsdv_cigs <- lm(packpc ~ avgprs + state + factor*year, data = cigs_panel2) this would include the years as coefficients as well
+
+lsdv_cigs
+```
+
+Not the same exact coefficient because we are only using 5 states, but if you ran all the states you should get the same output as the panel regression.
+
+It is nice to have all of the coefficients here for 5 states, but if you had 100s of states it would be cumbersome and panel regression might be a better choice.
+
+```{r}
+
+#a new panel set just for plotting this
+
+cigs_panel_plot <- cigs_panel2 %>% 
+  droplevels() #cleans up by removing unobserved levels. If you don't do this R will think there are a bunch of levels from all the states that we filtered out.
+
+```
+
+```{r, fig.height=4, fig.width=4}
+
+scatterplot(cigs_panel_plot$packpc ~ cigs_panel_plot$avgprs | cigs_panel_plot$state,
+            xlab = "Average Price", 
+            ylab = "Packs per capita",
+            smooth = FALSE,
+            legend.title = "State") #make a plot of avg cig price vs packs per capit, grouped by state
+            
+
+```
+

@@ -8,3 +8,72 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+```{r, message=FALSE}
+
+library(tidyverse)
+library(boot)
+library(nlstools)
+
+```
+
+```{r data}
+
+fish_catch <- read_csv("fish_catch.csv")
+
+fish_catch$year_zero <- fish_catch$Year - 1950  
+
+```
+
+```{r}
+
+ggplot(fish_catch, aes(x = year_zero)) +
+  geom_point(aes(y = Wild, colour = "Wild")) +
+  geom_point(aes(y = Farmed, colour = "Farmed")) +
+  geom_point(aes(y = Total, colour = "Total"))
+
+```
+
+```{r}
+
+r_est <- lm(log(fish_catch$Wild [1:35]) ~ fish_catch$year_zero[1:35]) #only using observations 1-5
+r_est
+
+```
+From this we have a guess at r: 0.07116
+
+```{r}
+
+fish_fit <- nls(Wild ~ A/(1+B*exp(-r*year_zero)), 
+                data = fish_catch,
+                start = list(A = 100, B = 4.47, r = 0.03686), #starting values
+                trace = TRUE)
+```
+
+```{r}
+
+A <- coef(fish_fit)[1]
+B <- coef(fish_fit)[2]
+r <- coef(fish_fit)[3]
+
+```
+
+```{r}
+
+time_seq <- seq(0, 100, length =100) #this will give me a range of values from 0 to 20 with 100 values evenly spaced
+
+fish_pred <- A/(1 + B*exp(-r*time_seq))
+
+pred_df <- data.frame(time_seq, fish_pred)
+
+```
+
+```{r}
+
+ggplot(fish_catch, aes( x = year_zero, y = Wild)) +
+  geom_point( color = "blue", size = 3) +
+  theme_bw() +
+  geom_line(data = pred_df, aes(x = time_seq, y = fish_pred))
+
+```
+
