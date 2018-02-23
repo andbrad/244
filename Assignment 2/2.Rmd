@@ -1,0 +1,10 @@
+---
+title: 'Assignment 2: Parameter Est and Bootstrapping'
+author: "Brad Anderson"
+date: "February 23, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
