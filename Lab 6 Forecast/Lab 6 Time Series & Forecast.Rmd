@@ -1,0 +1,70 @@
+---
+title: "Lab 6 Time Series & Forecasting"
+author: "Brad Anderson"
+date: "February 22, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages, message=FALSE}
+
+library(tidyverse)
+library(forecast)
+library(tseries)
+```
+
+```{r data}
+
+energy <- read.csv("energy.csv")
+
+class(energy)
+
+```
+
+##3. Convert to 'ts' data
+The timeseries package only works with 'ts' class data. The base 'plot' package also understands 'ts' data also, among many others
+
+Our data is measured monthly
+```{r }
+
+res_ts <- ts(energy$res_total, frequency = 12, start = c(1973, 1)) #Each year, starting in January 1973
+
+#res_ts
+
+```
+
+```{r}
+
+plot(res_ts)
+
+```
+
+This data is a weird combo of additive and multiplicative data.
+Seasonality? YES
+Notable Outliers? NO
+
+##4. Decompose the ts data.
+
+decompose() function
+
+```{r}
+
+res_dc <- decompose(res_ts)
+
+plot(res_dc)
+```
+random = residiuals, looks like white noise, somewhat randomly distributed, the meanas are not changing
+
+##5. Other fast, cool ways to explore your ts data
+
+```{r}
+
+monthplot(res_ts)
+
+```
+For each separate month, this shows me how that values has changed over ALL years included in this study. 
+
+Ex. April has not changed a lot, but summer months are showing a drastic increase in energy consumption.
