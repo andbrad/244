@@ -68,3 +68,140 @@ monthplot(res_ts)
 For each separate month, this shows me how that values has changed over ALL years included in this study. 
 
 Ex. April has not changed a lot, but summer months are showing a drastic increase in energy consumption.
+
+```{r}
+
+ggseasonplot(res_ts) +
+  theme_bw()
+
+```
+Taking data for each year and gives it a different color. Orange colors in the the 1970s are at the bottom, with increasing energy use over the years.
+
+##Part 6. SImple moving average (smoothing)
+
+Use the 'ma' function in the forecast package
+
+```{r}
+
+sma_res <- ma(res_ts, order = 24) #changing the number will adjust the moving average
+plot(res_ts)
+lines(sma_res, col = "red")
+
+```
+
+##7. exploring autocorrelation (ACF)
+
+A good way to explore seasonality, especially if your data looks like random noise.
+
+1. basic way using ACF() which plots the correlogram
+2. gg way using ggtsdisplay()
+
+```{r}
+
+acf(res_ts)
+
+```
+
+Clear oscillating pattern, which shows a very stable, repeated correlation. This is because this a VERY stable seasonal data overall.
+
+1.0 = 1 year in this case
+
+Values that are separated by ~12 months are highly correlated. 
+
+```{r}
+
+ggtsdisplay(res_ts)
+
+```
+
+The original data on the top. The lag has months on the x axis. 
+
+##Augmented Dickey-Fuller Test for Stationarity
+
+Null hypothesis: data are NOT stationary
+ALternative hypothesis: data are stationary
+
+Ex. If p value is 0.03 (assuming sig level of alpha = 0.05), then I reject the null hypothesis, thus I retain the alternative hypothesis because think the data is stationary data.
+
+```{r}
+
+adf_res <- adf.test(res_ts)
+adf_res
+
+```
+
+##9. Holt-Winters Exponential SMoothing
+
+Also called triple exponential smoothing, which considers three different weighted components from previous values. 
+
+Making predicitons of recent values that are weighted more strongly than observations in the past. 
+
+```{r}
+
+res_hw <- HoltWinters(res_ts) #This does not make a forecast on its own...
+plot(res_hw)
+```
+
+```{r}
+res_forecast <- forecast(res_hw, h = 100) #whatever you put into it, it recognizes the model type
+plot(res_forecast)
+```
+
+```{r}
+
+hist(res_forecast$residuals)
+
+```
+Relatively small error bars because this data are SO repeated, not a lot of noise.
+I can be decently confidence using this to make predictions. 
+
+Residuals look normally distributed. Happy! Does not look like it is biased to higher or lower values.
+
+It will not pull trends out of noisey data.
+
+##10. ARIMA using auto.arima() function
+
+Finds p,d,q values for seasonal and non-seasonal components of time series, but if you were truly presenting these values you would want a more rigorous method.
+
+It's dangerously easy...
+
+```{r}
+
+res_pdq <- auto.arima(res_ts)
+res_pdq
+
+```
+
+AIC models are displayed, so you can see the best-fit model.
+
+Nonseasonal/sesonal PDQ values: (1,0,2)(0,1,1)
+
+```{r}
+
+res_arima <- arima(res_ts, order = c(1,0,2), seasonal = list(order = c(0,1,1)))
+
+```
+
+
+Evaluate the residuals
+```{r}
+
+par(mfrow = c(1,2))
+hist(res_arima$residuals)
+qqnorm(res_arima$residuals) #uses z distribution
+
+```
+
+```{r}
+
+forecast_res <- forecast(res_arima, h = 60)
+plot(forecast_res)
+```
+
+if I want to convert the infomoration to a dataframe, for using in ggplot
+```{r}
+
+res_df <- data.frame(forecast_res)
+```
+This shows the confidence interbal data as well!
+
