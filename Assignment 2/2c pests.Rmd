@@ -1,0 +1,51 @@
+---
+title: "2c pests"
+author: "Brad Anderson"
+date: "February 23, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE}
+library(tidyverse)
+
+```
+
+
+```{r, message=FALSE}
+
+pest <- read_csv("ca_pest.csv")
+
+pop <- read_csv("ca_pop.csv")
+
+```
+
+```{r, message=FALSE}
+
+both <- merge(pest, pop, by = "County")
+
+both$PestConcentration <- both$PestConcentration <- both$PestPounds/both$CountyArea
+  
+both <- both %>% 
+    select(County, PestConcentration, MedFamilyIncome, Population) %>%
+    arrange(-PestConcentration)
+
+```
+
+```{r}
+
+ggplot( both, aes(x = MedFamilyIncome, y = PestConcentration)) +
+  geom_jitter(aes(size = Population))+
+  ylab("Pesticide (Pounds per Square Mile)")+
+  xlab("Median Family Income")+
+  geom_smooth(se = FALSE)+
+  theme_bw()+
+    theme(panel.grid.major = element_blank(),
+         panel.grid.minor = element_blank())
+
+```
+
+

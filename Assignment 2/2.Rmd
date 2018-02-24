@@ -74,10 +74,11 @@ pred_df <- data.frame(time_seq, fish_pred) %>%
 
 ggplot(fish_catch, aes( x = Year, y = Wild)) +
   geom_point( color = "red", size = 3) +
-  ggtitle("Wild Fish Yield") +
   ylab("Catch (Million Tons)") +
   xlab("Year")+
   theme_bw() +
+  theme(panel.grid.major = element_blank(),
+         panel.grid.minor = element_blank())+
   geom_line(data = pred_df, aes(x = Year, y = fish_pred))+
   theme(plot.title = element_text(hjust = 0.5))
   
