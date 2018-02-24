@@ -49,6 +49,7 @@ fish_fit <- nls(Wild ~ A/(1+B*exp(-r*year_zero)),
                 start = list(A = 100, B = 4.47, r = 0.03686), #starting values
                 trace = TRUE)
 ```
+N(t)= 100.28/1 + 4.32 * e^-0.07t
 
 ```{r}
 
@@ -64,16 +65,22 @@ time_seq <- seq(0, 100, length =100) #this will give me a range of values from 0
 
 fish_pred <- A/(1 + B*exp(-r*time_seq))
 
-pred_df <- data.frame(time_seq, fish_pred)
+pred_df <- data.frame(time_seq, fish_pred) %>% 
+  mutate(Year = 1950:2049)
 
 ```
 
 ```{r}
 
-ggplot(fish_catch, aes( x = year_zero, y = Wild)) +
-  geom_point( color = "blue", size = 3) +
+ggplot(fish_catch, aes( x = Year, y = Wild)) +
+  geom_point( color = "red", size = 3) +
+  ggtitle("Wild Fish Yield") +
+  ylab("Catch (Million Tons)") +
+  xlab("Year")+
   theme_bw() +
-  geom_line(data = pred_df, aes(x = time_seq, y = fish_pred))
+  geom_line(data = pred_df, aes(x = Year, y = fish_pred))+
+  theme(plot.title = element_text(hjust = 0.5))
+  
 
 ```
-Yay I did it!
+
