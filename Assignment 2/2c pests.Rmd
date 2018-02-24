@@ -48,4 +48,4 @@ ggplot( both, aes(x = MedFamilyIncome, y = PestConcentration)) +
 
 ```
 
-
+DO I want a straight line or a curved line?
