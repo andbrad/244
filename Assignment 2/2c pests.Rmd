@@ -2,7 +2,9 @@
 title: "2c pests"
 author: "Brad Anderson"
 date: "February 23, 2018"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -35,17 +37,16 @@ both <- both %>%
 
 ```
 
-```{r}
+```{r, message==FALSE}
 
 ggplot( both, aes(x = MedFamilyIncome, y = PestConcentration)) +
   geom_jitter(aes(size = Population))+
   ylab("Pesticide (Pounds per Square Mile)")+
   xlab("Median Family Income")+
-  geom_smooth(se = FALSE)+
+  geom_smooth(se = FALSE, method = "lm")+
   theme_bw()+
     theme(panel.grid.major = element_blank(),
-         panel.grid.minor = element_blank())
+         panel.grid.minor = element_blank())+
+  ggsave("pesticide.png", dpi = 300, width = 6, height = 4, units = "in")
 
 ```
-
-DO I want a straight line or a curved line?

@@ -16,8 +16,8 @@ library(tidyverse)
 library(boot)
 library(nlstools)
 
-penguins <- read_csv("H:/Week 3 Bootstrapping NOLS/penguins.csv")
-CellGrowth <- read_csv("H:/Week 3 Bootstrapping NOLS/CellGrowth.csv")
+penguins <- read_csv("penguins.csv")
+CellGrowth <- read_csv("CellGrowth.csv")
 
 ```
 

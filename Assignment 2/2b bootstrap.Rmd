@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, message=FALSE}
+```{r, inlcude=FALSE}
 
 library(tidyverse)
 library(boot)
@@ -19,7 +19,13 @@ library(nlstools)
 
 ```{r}
 
+behavior <- rep(1:0, c(22,14))
+
+prop_fun <- function (x, i) {sum(x[i])/length(x[i])}
+
+boot_10000 <- boot(behavior, prop_fun, R = 10000)
+boot_10000
 
 
 ```
-
+Check the original mean in a histogram.

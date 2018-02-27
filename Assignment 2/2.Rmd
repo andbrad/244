@@ -80,7 +80,8 @@ ggplot(fish_catch, aes( x = Year, y = Wild)) +
   theme(panel.grid.major = element_blank(),
          panel.grid.minor = element_blank())+
   geom_line(data = pred_df, aes(x = Year, y = fish_pred))+
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5))+
+  ggsave("fish.png", dpi = 300, width = 6, height = 4, units = "in")
   
 
 ```
