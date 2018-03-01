@@ -1,0 +1,34 @@
+---
+title: "Untitled"
+author: "Brad Anderson"
+date: "February 27, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(sf)
+library(sp)
+library(gstat)
+library(rgdal)
+library(tidyverse)
+library(devtools)
+```
+
+```{r}
+devtools::install_github("tidyverse/ggplot2")
+```
+
+
+```{r}
+
+library(tidyverse) 
+nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+ggplot(nc) + geom_sf(aes(fill = AREA))
+
+```
+

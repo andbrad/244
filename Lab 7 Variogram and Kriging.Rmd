@@ -1,0 +1,12 @@
+---
+title: "Lab 7 Variograms and Kriging"
+author: "Brad Anderson"
+date: "March 1, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
