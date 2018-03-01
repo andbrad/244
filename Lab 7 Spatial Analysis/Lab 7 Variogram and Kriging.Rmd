@@ -1,0 +1,154 @@
+---
+title: "Lab 7 Variograms and Kriging"
+author: "Brad Anderson"
+date: "March 1, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE}
+library(sf)
+library(sp)
+library(gstat)
+library(rgdal)
+library(tidyverse)
+library(devtools)
+library(tmap)
+```
+
+```{r}
+
+lat_lon <- read_csv("lat_lon.csv")
+fire_pm25 <- read_csv("fire_pm25.csv")
+counties <- st_read(dsn = ".", layer = "california_county_shape_file")
+
+```
+
+3. Combine PM2.5 attribute data with the lat/long information. You frequently must create/combine the data so that R knows it is spatial.
+
+```{r}
+
+ df <- full_join(lat_lon, fire_pm25) #returns all, even if there is no match
+
+df <- df %>% 
+  filter(name !="NA") #Gets ride of random description rows at the bottom. filter() is listwise deletion that gets rid of the entire row.
+
+```
+
+4. Convert to simple features spatial data, and we're going to set the CRS
+```{r}
+df_sf <- st_as_sf(df, coords = c("latitude", "longitude")) #Get data from df, then tell it which columns refer to the coordinates.
+                  
+#Now the latitude/longitude information is stored in a new geometry column.
+
+st_crs(df_sf) <- 4326 #Sets coordinate reference system.
+st_crs(counties) <- 4326
+```
+
+5. We want to look at the spatial data at a certain date after the fire. So we are going to filter the dat to only retain air quality observations from 12/10/17.
+
+```{r}
+#The geometry data is 'sticky,' meaning it will stay with the other data and we can kinda forget about it.
+
+pm_12_10 <- df_sf %>% 
+  filter(summary_date == "12/10/17") %>% 
+  select(pm25_davg)
+```
+
+You could just use the plot() function
+```{r}
+plot(pm_12_10)
+plot(counties)
+
+```
+
+6. Make a point plot using ggplot with geom_sf
+```{r}
+
+ggplot(pm_12_10)+
+  geom_sf(data = counties)+
+  geom_sf(aes(color = pm25_davg))
+
+```
+
+Have R make a variogram and do some kriging so that I can predict concentrations for the entire state. First, we need to make a variogram that we can draw the kriging from.
+
+7. Create a simplified data fram, set coordinates, and CRS
+
+```{r}
+
+df2 <- df %>% 
+  filter(summary_date == "12/10/17") %>% 
+  select(longitude, latitude, pm25_davg)
+
+coordinates(df2) <- ~ latitude + longitude
+proj4string(df2) <- CRS("+init=epsg:4326")
+```
+
+```{r}
+ bubble(df2, "pm25_davg")
+```
+
+8. Create a variogram, and fit a variogram model.
+```{r}
+
+pm_vg <- variogram(pm25_davg ~ 1, df2) # ~1 is normal kriging
+plot(pm_vg)
+```
+Estimates: Nugget ~ 90, Range ~ 300, Sill ~ 450
+
+```{r}
+
+vg_fit <- fit.variogram(pm_vg, vgm(c("Exp", "Sph", "Gau")))
+vg_fit
+
+```
+It decided the Gau model is the best.
+
+```{r}
+plot(pm_vg, vg_fit)
+```
+
+9. New grid of pixels is over which we want to interpolate.
+
+```{r}
+
+Long <- seq(-125, -114, length = 100) #These lat/long bound California.
+Lat <- seq(32, 42, length = 100)
+
+Grid <- expand.grid(Long, Lat) #Stored now as a dataframe instead of two seperate vectors.
+colnames(Grid) <- c("Long", "Lat")
+
+coordinates(Grid) <- ~ Long + Lat #This tells R the dataframe is spatial data.
+gridded(Grid) = TRUE
+
+proj4string(Grid) <- CRS("+init=epsg:4326")
+
+plot(Grid)
+```
+Now we have a grid of areas that we can make predictions over.
+
+10. Kriging
+```{r}
+
+pm_krige <- krige(pm25_davg ~1, df2, newdata = Grid, model = vg_fit)
+
+```
+
+11. Visualize Results
+```{r}
+
+krige_df <- data.frame(Grid$Long, Grid$Lat, pm_krige$var1.pred)
+colnames(krige_df) <- c("Long", "Lat", "Predicted")
+
+krige_gg <- ggplot() +
+  geom_tile(data = krige_df, aes(x = Long, y = Lat, fill = Predicted))+
+              geom_sf(data = counties, fill = "NA", color = "white")
+            
+            krige_gg
+
+```
+
