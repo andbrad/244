@@ -1,0 +1,25 @@
+---
+title: "Assignment 3"
+author: "Brad Anderson"
+date: "March 5, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+###Task 2: Reading and Short Answer
+
+
+
+###Task 3: Truckee River Flows (2000 – 2016)
+
+```{r include=FALSE}
+
+library(tidyverse)
+
+river <- read_csv("truckee_flow.csv")
+```
+
+
+

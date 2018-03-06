@@ -1,0 +1,181 @@
+---
+title: "Lab Week 7 - Spatial Data Intro - Maps, Variograms, Kriging"
+author: "Allison Horst and Sean Fitzgerald"
+date: "March 2, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##1. Create project
+
+Create a new project, drag and drop fire_pm25 and lat_lon .CSVs into it. Then create a markdown file (to html).
+
+##2. Packages and data. Data are for PM2.5 from 12/4/2017 - 12/10/2017 - encompassing the start and first week of the Thomas Fire (from California Air Resources Board)
+
+```{r, message = FALSE, warning = FALSE}
+library(ggplot2) # Note: this is in tidyverse but some people were having problems when loading tidyverse instead of ggplot2, so we're loading individual packages separately
+library(readr) # Note: this is in tidyverse but some people were having problems when loading tidyverse instead of ggplot2, so we're loading individual packages separately
+library(dplyr) # Note: this is in tidyverse but some people were having problems when loading tidyverse instead of ggplot2, so we're loading individual packages separately
+library(sf)
+library(sp)
+library(gstat)
+library(rgdal)
+library(raster)
+library(tmap)
+
+
+lat_lon <- read_csv("lat_lon.csv") # this HAS to be read_csv() instead of read.csv() so it will read in as a "tbl_df" to work with some of the dplyr function later
+
+fire_pm25 <- read_csv("fire_pm25.csv") # this HAS to be read_csv() instead of read.csv() so it will read in as a "tbl_df" to work with some of the dplyr function later
+
+counties <- st_read(dsn = ".", layer = "california_county_shape_file")
+```
+
+
+##3. Combine attribute and lat/lon data
+
+Combine the data by merging locations/latitudes & longitudes with the PM2.5 data by site name. Use full_join() to return EVERY observation in both datasets (even if there aren't matches - in which case it will populate with NA). A mutating join.
+```{r}
+df <- full_join(lat_lon, fire_pm25) # EVERY observation in both datasets
+
+df <- df %>% 
+  filter(name != "NA") #This removes the entire row if any entry in that row is NA
+
+# Look at it
+```
+
+##4. Convert to simple features (spatial) and set CRS
+```{r}
+df_sf <- st_as_sf(df, coords = c("latitude","longitude")) # Converting df to a spatial features (sf) object. Notice when you do this, view df_sf and you'll see that now all spatial information shows up in a separate column (geometry) - simple features are great because the geometry is "sticky" -- we can work with the rest of the data frame, and it will assume that we want to retain the geometry associated with it
+
+st_crs(df_sf) <- 4326 # we are setting the coordinate reference system.  4326 is Commonly used by organizations that provide GIS data for the entire globe or many countries. CRS used by Google Earth (https://www.nceas.ucsb.edu/~frazier/RSpatialGuides/OverviewCoordinateReferenceSystems.pdf)
+
+st_crs(counties) <- 4326
+```
+
+##5. Filter to only use data 12/10/17
+```{r}
+pm_12_10 <- df_sf %>% 
+  filter(summary_date == "12/10/17") %>% 
+  dplyr::select(pm25_davg)# Notice that the geometry information is maintained. Why do we have to include dplyr:: here, you ask? - type ?select and you'll see that there are multiple "select()" functions.  One of them is in the raster package, which we loaded at the beginning.  SO, we need to specify for R that we want dplyr's select() function, NOT the select() function from the raster package.
+```
+
+##6. Make a point plot (color indicates PM2.5 concentration) on 12/10/17 with counties, too
+```{r}
+plot(pm_12_10) # here are just your points in space
+plot(counties) # and here are all the parts of the counties shapefile. Pretty awesome that you can just use the plot() function to do this... that was NOT the case before sf came along!
+
+# Advice: run this line by line to be sure you understand what each line of code is doing to your plot
+
+ggplot(pm_12_10) +
+  geom_sf(data = counties, fill = "gray60") +
+  geom_sf(aes(color = pm25_davg)) +
+  scale_color_gradient(low = "yellow", high = "red") +
+  theme_bw() +
+  ggtitle("California PM2.5 (12/10/2017)") +
+  theme(legend.position = "none") # Woohoo!
+```
+
+##EXTRA: If you CAN'T get geom_sf() towork, you have the option of them creating this (at least to some extent) using tmap.
+
+```{r}
+
+# Advice: run this line by line to be sure you understand what each line of code is doing to your plot
+
+tm_shape(counties) +
+  tm_polygons() +
+  tm_shape(pm_12_10) +
+  tm_bubbles("pm25_davg", col = "pm25_davg") +
+  tm_layout(legend.position = c("right","top"),
+            legend.text.size = 0.5)
+```
+
+
+#Moving on to variograms and kriging...
+
+##7. Create a simplified data frame, set coordinates (spatial points data frame), and set CRS.
+
+```{r}
+df2 <- df %>% 
+  dplyr::filter(summary_date == "12/10/17") %>% 
+  dplyr::select(longitude, latitude, pm25_davg)
+
+coordinates(df2) <- ~ latitude + longitude # Actually making the latitude and longitude info from df meaningful spatial information
+
+proj4string(df2) <- CRS("+init=epsg:4326") # Setting coordinate reference system
+bubble(df2, "pm25_davg")
+```
+
+##8. Create a variogram, look at it, and fit the model
+
+We need to understand how observations at some distance from a point we're predicting might influence its' value (distance memory) - so we create a variogram model to mathematically describe that decay in correlation. 
+```{r}
+pm_vg <- variogram(pm25_davg ~ 1, df2) # Calculating our variogram
+plot(pm_vg)
+
+# Estimates for range, nugget, and sill - we're just eyeballing these
+
+# nugget ~ 100
+# range ~ 300
+# sill ~ 450
+
+vg_fit <- fit.variogram(pm_vg, vgm(c("Exp","Sph","Gau"))) # Chooses Gaussian
+plot(pm_vg, vg_fit) # Plots it
+```
+
+##9. Create a grid of "point" locations that cover all the locations we'd want to make predictions for (make sure projection matches existing data we'll use to make interpolations)
+
+```{r}
+bbox(df2) # Check the limits of your spatial data
+
+# Create a grid, make it spatial (and have to project...)
+Long <- seq(-125,-114, length = 100)
+Lat <- seq(32,42, length = 100)
+Grid <- expand.grid(Long, Lat)
+colnames(Grid) <- c("Long","Lat")
+
+coordinates(Grid) <- ~ Long + Lat # This converts the Long and Lat data to spatial points.
+
+gridded(Grid) = TRUE # Now it's converted to spatial pixels (there are now centroid pixels that will be estimated by kriging)
+
+proj4string(Grid) <- CRS("+init=epsg:4326") # setting the crs
+
+```
+
+##10. Kriging
+
+```{r}
+pm_krige <- krige(pm25_davg ~ 1, df2, newdata = Grid, model = vg_fit) # Doing ordinary kriging (that's the ~ 1)
+
+
+pm_krige@data #10,000 rows...
+head(pm_krige@data)
+names(pm_krige@data) # predicted value (pred) and associated variance (var)
+
+```
+
+##11. Visualization (the ggplot way)
+```{r}
+
+krige_df <- data.frame(Grid$Long, Grid$Lat, pm_krige$var1.pred) # Combining your predicted values with your spatial pixel data
+colnames(krige_df) <- c("Long","Lat","Predicted")
+
+krige_gg <- ggplot() + 
+  geom_tile(data = krige_df, aes(x = Long, y = Lat, fill = Predicted)) +
+  geom_sf(data = counties, fill = "NA", color = "white") +
+  scale_fill_gradient(low = "yellow", high = "red") 
+krige_gg
+```
+
+
+#AIf you don't have geom_sf working, you can still look at something cool until you do using...
+
+```{r}
+
+pm_plot <- spplot(pm_krige["var1.pred"], scales = list(draw = T), xlab = "Longitude", ylab = "Latitude", col.regions = colorRampPalette(c("blueviolet","dodgerblue","skyblue","white"))(20))
+
+pm_plot
+```
