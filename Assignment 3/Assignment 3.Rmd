@@ -17,9 +17,46 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r include=FALSE}
 
 library(tidyverse)
+library(tseries)
+library(forecast)
 
 river <- read_csv("truckee_flow.csv")
 ```
 
+```{r}
 
+river_ts <- ts(river$flow, frequency = 12, start = c(2000, 1))
+plot(river_ts)
 
+#Looks seasonal, with some spikes certain years after big winters.
+
+```
+
+```{r}
+
+river_dc <- decompose(river_ts)
+plot(river_dc)
+monthplot(river_ts)
+ggseasonplot(river_ts) +
+  theme_bw()
+
+#Trend shows 'persistence' perhaps. Definetely seasonal.
+#monthplot shows shows biggest flows in May and June. Currently we are at a low point, though some recovery from last year's rains.
+```
+
+```{r}
+
+sma_river <- ma(river_ts, order = 24) #changing the number will adjust the moving average
+plot(river_ts)
+lines(sma_river, col = "red")
+
+acf(river_ts)
+
+#Clear oscillating pattern, though the magnitude changes. 
+```
+
+```{r}
+
+```
+
+The general trend is a slight decrease in flow. Additive data because it the variance is not changing much over time; the residuals look randomly distributed. There is noticeable seasonality, though the magnitude of the flow varies from year to year. The highest flows are in May and June. 
