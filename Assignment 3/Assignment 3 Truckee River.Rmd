@@ -1,0 +1,97 @@
+---
+title: "Assignment 3"
+author: "Brad Anderson"
+date: "March 5, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+###Task 2: Reading and Short Answer
+
+
+
+###Task 3: Truckee River Flows (2000 – 2016)
+
+```{r include=FALSE}
+
+library(tidyverse)
+library(tseries)
+library(forecast)
+
+river <- read_csv("truckee_flow.csv")
+```
+
+```{r}
+
+river_ts <- ts(river$flow, frequency = 12, start = c(2000, 1))
+plot(river_ts)
+
+#Looks seasonal, with some spikes certain years after big winters.
+
+```
+
+```{r}
+
+river_dc <- decompose(river_ts)
+plot(river_dc)
+monthplot(river_ts)
+ggseasonplot(river_ts) +
+  theme_bw()
+
+#Trend shows 'persistence' perhaps. Definetely seasonal.
+#monthplot shows shows biggest flows in May and June. Currently we are at a low point, though some recovery from last year's rains.
+```
+
+The data for the flow of the Truckee river is additive because the variance does not change over time; and the residuals look randomly distributed. There is noticeable seasonality, though the magnitude of the flow varies from year to year. The highest flows are in May and Jun, which corresspond to the spring melt time. There are outlier flows around 2006 and 2011, which likely correspond ot high precipitation winters. An augmented Dickey-Fuller test tells us the data is stationary (P = 0.01). There does not appear to be a strong cyclical component beyond the normal seasonality, though it does appear that high flow years tend to cluster together a little bit.
+
+```{r}
+
+sma_river <- ma(river_ts, order = 24) #changing the number will adjust the moving average
+plot(river_ts)
+lines(sma_river, col = "red")
+
+acf(river_ts)
+
+#Clear oscillating pattern, though the magnitude changes. 
+```
+
+```{r include=FALSE}
+
+adf_river <- adf.test(res_ts)
+
+adf_river
+```
+
+
+```{r}
+
+river_hw <- HoltWinters(river_ts) #This does not make a forecast on its own...
+river_forecast <- forecast(river_hw, h = 100) #whatever you put into it, it recognizes the model type
+
+plot(river_forecast)
+
+hist(river_forecast$residuals)
+```
+
+```{r}
+
+river_pdq <- auto.arima(res_ts)
+
+river_arima <- arima(river_ts, order = c(1,0,2), seasonal = list(order = c(0,1,1)))
+
+par(mfrow = c(1,2))
+hist(river_arima$residuals)
+qqnorm(river_arima$residuals)
+```
+The residuals are normally distributed.
+
+```{r}
+
+forecast_river <- forecast(river_arima, h = 60
+                           )
+plot(forecast_river)
+
+```
+Figure 1. Five Year Truckee River Flow Forecast. Time-series analysis of Truckee River flow data from 2000 to 2016 and forecast using the ARIMA model.

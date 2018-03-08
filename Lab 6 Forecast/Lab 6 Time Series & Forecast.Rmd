@@ -30,7 +30,7 @@ The timeseries package only works with 'ts' class data. The base 'plot' package 
 Our data is measured monthly
 ```{r }
 
-res_ts <- ts(energy$res_total, frequency = 12, start = c(1973, 1)) #Each year, starting in January 1973
+res_ts <- ts(energy$res_total, frequency = 12, start = c(1973, 1)) #Each year, starting in January (the one after the 1973) 1973
 
 #res_ts
 

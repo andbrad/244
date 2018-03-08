@@ -1,0 +1,42 @@
+---
+title: "Assignment 3 California Map"
+author: "Brad Anderson"
+date: "March 7, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+library(tidyverse)
+library(sf)
+```
+
+```{r include=FALSE}
+counties <- st_read(dsn = ".", layer = "california_county_shape_file")
+parks <- st_read(dsn = ".", layer = "nps_boundary")
+st_crs(counties) <- 4326
+st_crs(parks) <- 4326
+```
+
+```{r}
+
+ca_parks <- parks %>% 
+  filter(UNIT_TYPE == "National Park" & STATE == "CA")
+#plot(ca_parks)
+
+```
+
+```{r}
+ggplot(ca_parks) +
+  geom_sf(data = counties, fill = "gray60", color = "gray") +
+  geom_sf(aes(color = UNIT_TYPE), fill = "deepskyblue", color = "deeppink") +
+  theme(panel.grid.major = element_line(colour = 'transparent'))+
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        rect = element_blank())
+```
+
