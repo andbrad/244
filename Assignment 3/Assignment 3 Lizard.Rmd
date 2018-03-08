@@ -1,0 +1,62 @@
+---
+title: "Assignment 3 Lizard"
+author: "Brad Anderson"
+date: "March 7, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+library(tidyverse)
+
+#Load the cleaned .csv file.
+lizard <- read_csv("lizard.csv")
+```
+
+```{r}
+
+#Replace all the "." with NA, which R can handle better.
+
+lizard[lizard =="."]<-NA
+
+#Filter for adult lizards only.
+m <- lizard %>% 
+  filter(sex == "M" & site == "CALI")
+f <- lizard %>% 
+  filter(sex == "F"& site == "CALI")
+
+m$weight <- as.numeric(m$weight)
+f$weight <- as.numeric(f$weight)
+
+```
+
+```{r}
+
+
+
+par(mfrow = c (2,2))
+hist(m$weight)
+hist(f$weight)
+qqnorm(m$weight)
+qqnorm(f$weight)
+
+```
+
+```{r}
+
+f_test <- var.test(m$weight,f$weight)
+f_test
+
+```
+Ther variances are equal, thus I will use student's t-test.
+
+```{r}
+
+t.test_diff <- t.test(m$weight, f$weight, var.equal = TRUE)
+t.test_diff
+
+```
+No significant difference in weight between adult male and female lizards.
