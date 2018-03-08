@@ -40,3 +40,29 @@ ggplot(df, aes(x = Year, y = Loss)) +
 
 ```
 
+
+###Leaflet plot of spilll locations in TX in 2016
+```{r}
+
+df_loc <- oil_spills %>% 
+  filter(`Accident State` == "TX" & `Accident Year` == 2016) %>% 
+  select(Latitude, Longitude, `Net Loss (Barrels)`)
+
+colnames(df_loc) <- c("latitude", "longitude", "net_loss")
+
+```
+
+R does not yet recognize that this is spatial information. We can convert it into simple features data:
+
+```{r}
+
+oil_sf <- st_as_sf(df_loc, coords = c("longitude", "latitude"), crs = 4326)
+# Now the spatial information will be retained, even as we filter(), select(), etc. the data.
+
+leaflet(oil_sf) %>% 
+  addTiles %>% 
+  addMarkers
+```
+
+ 
+ 
