@@ -1,0 +1,42 @@
+---
+title: "Lab 8 Spatial Point Pattern Analysis & PCA"
+author: "Brad Anderson"
+date: "March 8, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+
+library(tidyverse)
+library(sf)
+library(tmap)
+library(leaflet)
+library(spatstat)
+library(maptools)
+```
+
+
+
+###Column Graph of Texas Oil Spills
+
+```{r}
+
+ oil_spills <- read_csv("oil_spills.csv")
+
+df <- oil_spills %>% 
+  filter(`Accident State` == "TX" & `Accident Year` < 2017) %>%  #Use the '' quotations to add in a item with a space in the name. 
+  group_by(`Accident Year`) %>% #These headings are not data science friendly, it would be better to have a metadata file that has a description based on a shorter header.
+  summarise(Loss = sum (`Net Loss (Barrels)`))
+
+colnames(df) <- c("Year", "Loss")
+
+ggplot(df, aes(x = Year, y = Loss)) + 
+  geom_col()
+
+
+```
+
