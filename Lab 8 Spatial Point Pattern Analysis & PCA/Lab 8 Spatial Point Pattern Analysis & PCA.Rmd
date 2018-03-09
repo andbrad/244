@@ -59,10 +59,98 @@ R does not yet recognize that this is spatial information. We can convert it int
 oil_sf <- st_as_sf(df_loc, coords = c("longitude", "latitude"), crs = 4326)
 # Now the spatial information will be retained, even as we filter(), select(), etc. the data.
 
-leaflet(oil_sf) %>% 
+leaflet(oil_sf) %>% #Leaflet actually automatically will use lat/long data if it can find it in the data.
   addTiles %>% 
   addMarkers
 ```
 
+ ##tmap plot with Texas state shapefile
  
+```{r}
+
+states <- st_read(dsn = ".", layer = "states") # "." because the file is in the folder?
+
+tex_border <- states %>% 
+  filter(STATE_NAME == "Texas") %>% 
+  #Transforming here so that when we start making polygons and points they align correctly. This data already has a crs assigned, so we must use transform to change it.
+  st_transform(4326)
+
+plot(tex_border)
+
+tm_shape(tex_border) +
+  tm_polygons()+
+  tm_shape(oil_sf)+
+  tm_dots(size = 0.3)
+```
  
+ Does this point pattern follow CSR?
+ 
+ ###Convert the data to spatial points patterns (combination of point data and the bounding window)
+ 
+```{r}
+#Convert from spatial features back into a dataframe.
+spill_sp <- as(oil_sf, "Spatial") #R still cannot recognize this as data to do point pattern analysis with.
+spill_ppp <- as(spill_sp, "ppp") #ppp is a specific type of data that R understands
+
+tx_sp <- as(tex_border, "Spatial") 
+tx_owin <- as(tx_sp, "owin") #This is the outer window that I am going to use in my analysis.
+
+all_ppp <- ppp(spill_ppp$x, spill_ppp$y, window = tx_owin) #x and y are the lat/long and the window is the area we are looking at
+```
+ 
+We have just taken spatial information and put it into a format that R understands.
+
+###A kernal density plot for overlapping areas around points:
+```{r}
+
+ plot(density(all_ppp, sigma = 0.4)) 
+
+```
+Spatial randomness is different from spatial eveness.
+
+###Quadrat test for spatial evenness
+
+Are oil spills evenly distributed throughout the state?
+
+```{r}
+
+oil_qt <- quadrat.test(all_ppp, nx = 5, ny = 5) #A total of 5 regions that exist horizontally, 5 vertically
+oil_qt
+```
+A very small p value, thus NOT CSR and NOT evenly distributed.
+
+If you look at the oil spill data for Texas, it doesn't look like CSR data, it looks like clustering in some areas and blank areas in others. 
+
+```{r}
+plot(all_ppp)
+plot(oil_qt, add = TRUE, cex = 0.4)
+```
+
+For a whole square the expected number of events is 14.5, for partial squares it displays the proportional number of events. 
+
+###G-Function for nearest neighbor analysis
+```{r}
+ r <- seq(0,1, by = 0.01)
+
+#Simulate CSR data
+
+oil_gfun <- envelope(all_ppp, fun = Gest, r =r, nsim=100)
+ggplot(oil_gfun, aes(x = r, y = obs)) +
+  geom_line(color = "black") +
+  geom_line(aes(x = r, y = theo), color = "red")
+
+```
+ Our observed data has a higher prop of point pairs with nearest neighbors at shorter distances compared to csr data.
+
+###Nearest neighbor using the L-function (Ripley's K, standardized)
+```{r}
+
+r2 <- seq(0,3, by = 0.5)
+
+oil_lfun <- envelope(all_ppp, fun = Lest, r = r2, nsim = 20, global = TRUE) #Instead of just finding a single nearest neighbor, it makes increasing bubbles around each event, thus much more computationally instensive.
+
+ggplot(oil_lfun, aes(x = r2, y = obs, ))+
+  geom_line( color = "black")+
+  geom_line(aes(x = r2, y = theo), color = "blue")
+```
+Both L and G functions show that nearest neighbor and global neighbors show that the distance is small, indicating clustering. 
