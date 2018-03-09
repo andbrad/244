@@ -26,7 +26,7 @@ lizard[lizard =="."]<-NA
 m <- lizard %>% 
   filter(sex == "M" & site == "CALI")
 f <- lizard %>% 
-  filter(sex == "F"& site == "CALI")
+  filter(sex == "F" & site == "CALI")
 
 m$weight <- as.numeric(m$weight)
 f$weight <- as.numeric(f$weight)
@@ -59,4 +59,55 @@ t.test_diff <- t.test(m$weight, f$weight, var.equal = TRUE)
 t.test_diff
 
 ```
-No significant difference in weight between adult male and female lizards.
+Live-trapping of lizards (sampling-with-replacement) in the Northern Chihuahua Desert near White Sands, NM from 1989 to 1990 found that though mean weight for female lizards (n = 79)  was 0.86 grams greater than males (n = 58), the result was not significant (t(130) = -0.7, p = 0.427).
+
+```{r}
+
+all_tails <- lizard %>% 
+  filter(site == "CALI") %>% 
+  select(sex, tail)
+
+m_broken <- all_tails %>% 
+  filter(sex == "M") %>% 
+  filter(tail == "B")
+#10
+
+m_whole <- all_tails %>% 
+  filter(sex == "M") %>% 
+  filter(tail == "W")
+#46
+
+f_broken <- all_tails %>% 
+  filter(sex == "F") %>% 
+  filter(tail == "B")
+#18
+
+f_whole <- all_tails %>% 
+  filter(sex == "F") %>% 
+  filter(tail == "W")
+#59
+
+male <- c(10, 46)
+female <- c(18, 59)
+
+lizard_tails <- rbind(male, female)
+colnames(lizard_tails) <- c("Broken" , "Whole")
+
+```
+
+```{r}
+
+prop <- prop.table(lizard_tails, margin = 1)
+
+prop_rounded <- round(prop, 2)
+
+prop_table <- prop.table(prop, margin = 1)
+prop_table
+
+```
+
+```{r}
+ lizard_chi <- chisq.test(lizard_tails)
+lizard_chi
+```
+There is not a significant difference in the proportion of adult male (n = 56) and female (n = 77) lizards with broken tails ($\chi$^2^(1, n = 133) = 0.31, p = 0.579).
