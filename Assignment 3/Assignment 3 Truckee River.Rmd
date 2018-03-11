@@ -32,7 +32,7 @@ plot(river_ts)
 
 ```
 
-```{r}
+```{r dpi=300}
 
 river_dc <- decompose(river_ts)
 plot(river_dc)
@@ -59,7 +59,7 @@ acf(river_ts)
 
 ```{r include=FALSE}
 
-adf_river <- adf.test(res_ts)
+adf_river <- adf.test(river_ts)
 
 adf_river
 ```
@@ -75,9 +75,9 @@ plot(river_forecast)
 hist(river_forecast$residuals)
 ```
 
-```{r}
+```{r dpi=300}
 
-river_pdq <- auto.arima(res_ts)
+river_pdq <- auto.arima(river_ts)
 
 river_arima <- arima(river_ts, order = c(1,0,2), seasonal = list(order = c(0,1,1)))
 
@@ -87,7 +87,7 @@ qqnorm(river_arima$residuals)
 ```
 The residuals are normally distributed.
 
-```{r}
+```{r dpi=300}
 
 forecast_river <- forecast(river_arima, h = 60
                            )

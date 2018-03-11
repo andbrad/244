@@ -2,26 +2,28 @@
 title: "Assignment 3 California Map"
 author: "Brad Anderson"
 date: "March 7, 2018"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r include=FALSE}
+```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 library(sf)
 ```
 
-```{r include=FALSE}
+```{r message=FALSE, warning=FALSE}
 counties <- st_read(dsn = ".", layer = "california_county_shape_file")
 parks <- st_read(dsn = ".", layer = "nps_boundary")
 st_crs(counties) <- 4326
 st_crs(parks) <- 4326
 ```
 
-```{r}
+```{r }
 
 ca_parks <- parks %>% 
   filter(UNIT_TYPE == "National Park" & STATE == "CA")
@@ -29,7 +31,7 @@ ca_parks <- parks %>%
 
 ```
 
-```{r}
+```{r dpi=300}
 ggplot(ca_parks) +
   geom_sf(data = counties, fill = "gray60", color = "gray") +
   geom_sf(aes(color = UNIT_TYPE), fill = "deepskyblue", color = "deeppink") +
