@@ -1,0 +1,157 @@
+---
+title: "Lab 9"
+author: "Brad Anderson"
+date: "March 15, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Step 1: Load Packages
+```{r, include=FALSE}
+
+library(tidyverse)
+library(cluster)
+library(NbClust)
+library(factoextra)
+library(tidytext) #organizes text like a dataframe
+library(wordcloud)
+```
+
+##Step 2: Get Data
+```{r, include=FALSE}
+ 
+hate_crimes <- read_csv("Lab 9/hate_crimes.csv")
+hawking_df <- read_csv("Lab 9/hawking_df.csv")
+
+```
+
+
+##Step 3: Data Wrangling
+```{r}
+
+crimes_df <- drop_na(hate_crimes) #listwise deletion, any row that has NA values will be omitted
+#It goes from 51 (50 states + DC) to 45, thus 6 states had NA data
+
+crimes_df2 <- column_to_rownames(crimes_df, "state") #reassigns rownames
+crimes_df2 <- scale(crimes_df2)
+```
+
+##Step 4: Calculate and Visualize Euclidean Distances
+```{r}
+
+euc_dist <- get_dist(crimes_df2, method = "euclidean")
+fviz_dist(euc_dist, gradient = list(low = "darkgreen", mid = "white", high = "red"))
+
+```
+Massachusetts and West Virginia are very different. D.C. is very different than all others, much higher incidence of hate crime, which we will see later. 
+
+##Step 5: 
+
+kmeans: you tell it how many clusters you think there are, then it randomly assigns centroids and redraws until it has the clusters
+```{r}
+
+#NbClust package has 20+ algorithms built in that it tests and finds the best one.
+crimes_no <- NbClust(crimes_df2, min.nc = 2, max.nc = 10, method = "kmeans")
+
+
+```
+It tells you, among all indices (23), it tells you the best number of clusters. Our data is a bit bizarre because there are 3 that propose 10 clusters. But the most indices assign 3 clusters.
+
+```{r}
+crimes_kmeans <- kmeans(crimes_df2, 3)
+crimes_kmeans
+```
+
+```{r}
+
+fviz_cluster(crimes_kmeans, data = crimes_df2)
+```
+Specified 3 logical clusters based on euc distance. Found 3 centroids. Smaller symbols are the actual states. D.C. is its own cluster. 
+
+##Step 6: Hierarchical Clustering - making a dendrogram
+
+```{r}
+
+d <- dist(crimes_df2, method = "euclidean")
+hc_crime <- agnes(d, method = "complete")#Aggomerative is bottom up cluster analysis
+pltree(hc_crime, cex = 0.5, hang = -1) #cex is the font size, and hang defines the text
+
+```
+First split is between DC and everthing else, then you keep doing binary splits until each thing is their own leaf.
+
+##Step 7: Get (rename hawking_df data)
+
+```{r}
+
+sh_df <- hawking_df #This just creates a copy, so you still have the original.
+
+#Tidytext package is more straighforward to do text-based analysis because it treats text like a normal database.
+
+sh_text <- sh_df %>% 
+  select(text) %>% 
+  unnest_tokens(word, text) %>% #breaks everything into its own word, then you could group things by or frequencies. ALSO, it makes everything lower case for easier working
+  filter(!word %in% c("hawking", "stephen", "died", "t.co", "https", "stephenhawking", "steven", "death")) #things that do not match these 
+
+```
+
+##Step 8. Getting Counts of words
+```{r}
+
+counts <- sh_text %>% 
+  anti_join(stop_words) %>% 
+  count(word, sort = TRUE)
+
+head(counts, 20)
+
+```
+
+##Step 9. Make a wordcloud
+```{r}
+
+counts %>% 
+  with(wordcloud(word, n, max.words = 100, colors = brewer.pal(8, "Dark2")))
+
+```
+
+
+##Step 10. Sentiment analysis
+```{r}
+
+#get_sentiments("afinn") %>% #A score based sentiment that ranks from -5 to +5
+  #head(20)
+
+get_sentiments("nrc") %>% #For each word in the lexicon it assigns it to 6-7 catergories
+  head(20)
+```
+
+```{r}
+
+sh_nrc <- sh_text %>% 
+  left_join(get_sentiments("nrc"), by = "word") %>% 
+  filter(sentiment != "NA")
+```
+
+```{r}
+
+counts_nrc <- sh_nrc %>% 
+  count(word, sentiment, sort = TRUE)
+
+head(counts_nrc)
+```
+
+
+```{r}
+ total_sentiment <- counts_nrc %>% 
+  group_by(sentiment) %>% 
+  summarise(totals = sum(n)) %>% 
+  arrange(-totals)
+
+total_sentiment
+
+ggplot(total_sentiment) +
+  geom_col(aes (x=sentiment, y = totals))
+```
+

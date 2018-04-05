@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ###Task 3: Truckee River Flows (2000 – 2016)
 
-```{r packages and data}
+```{r packages and data, message=FALSE, warning=FALSE}
 
 library(tidyverse)
 library(tseries)
@@ -67,7 +67,7 @@ adf_river
 ```
 
 
-```{r}
+```{r forecast residuals}
 
 river_hw <- HoltWinters(river_ts) #This does not make a forecast on its own...
 river_forecast <- forecast(river_hw, h = 100) #whatever you put into it, it recognizes the model type
@@ -77,7 +77,7 @@ plot(river_forecast)
 hist(river_forecast$residuals)
 ```
 
-```{r dpi=300}
+```{r arima residuals, dpi=300}
 
 river_pdq <- auto.arima(river_ts)
 
@@ -89,7 +89,7 @@ qqnorm(river_arima$residuals)
 ```
 The residuals are normally distributed.
 
-```{r dpi=300}
+```{r forecast, dpi=300}
 
 forecast_river <- forecast(river_arima, h = 60
                            )
