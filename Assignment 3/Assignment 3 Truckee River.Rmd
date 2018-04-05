@@ -2,10 +2,12 @@
 title: "Assignment 3"
 author: "Brad Anderson"
 date: "March 5, 2018"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
-```{r setup, include=FALSE}
+```{r setup}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 ###Task 2: Reading and Short Answer
@@ -14,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ###Task 3: Truckee River Flows (2000 – 2016)
 
-```{r include=FALSE}
+```{r packages and data}
 
 library(tidyverse)
 library(tseries)
@@ -23,7 +25,7 @@ library(forecast)
 river <- read_csv("truckee_flow.csv")
 ```
 
-```{r}
+```{r create ts data}
 
 river_ts <- ts(river$flow, frequency = 12, start = c(2000, 1))
 plot(river_ts)
@@ -32,7 +34,7 @@ plot(river_ts)
 
 ```
 
-```{r dpi=300}
+```{r explore data,dpi=300}
 
 river_dc <- decompose(river_ts)
 plot(river_dc)
@@ -46,7 +48,7 @@ ggseasonplot(river_ts) +
 
 The data for the flow of the Truckee river is additive because the variance does not change over time; and the residuals look randomly distributed. There is noticeable seasonality, though the magnitude of the flow varies from year to year. The highest flows are in May and Jun, which corresspond to the spring melt time. There are outlier flows around 2006 and 2011, which likely correspond ot high precipitation winters. An augmented Dickey-Fuller test tells us the data is stationary (P = 0.01). There does not appear to be a strong cyclical component beyond the normal seasonality, though it does appear that high flow years tend to cluster together a little bit.
 
-```{r}
+```{r acf}
 
 sma_river <- ma(river_ts, order = 24) #changing the number will adjust the moving average
 plot(river_ts)
@@ -57,7 +59,7 @@ acf(river_ts)
 #Clear oscillating pattern, though the magnitude changes. 
 ```
 
-```{r include=FALSE}
+```{r adf}
 
 adf_river <- adf.test(river_ts)
 
